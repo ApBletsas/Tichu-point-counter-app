@@ -1,45 +1,57 @@
-import { PropsWithChildren, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React, { PropsWithChildren, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { Colors, Spacing, FontSizes } from '../constants/theme';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+interface CollapsibleProps {
+  title: string;
+  initiallyExpanded?: boolean;
+}
 
-export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const theme = useColorScheme() ?? 'light';
+export function Collapsible({ children, title, initiallyExpanded = false }: PropsWithChildren<CollapsibleProps>) {
+  const [isOpen, setIsOpen] = useState(initiallyExpanded);
 
   return (
-    <ThemedView>
+    <View style={styles.container}>
       <TouchableOpacity
         style={styles.heading}
         onPress={() => setIsOpen((value) => !value)}
         activeOpacity={0.8}>
-        <IconSymbol
-          name="chevron.right"
-          size={18}
-          weight="medium"
-          color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-          style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
-        />
-
-        <ThemedText type="defaultSemiBold">{title}</ThemedText>
+        <Text style={[
+          styles.chevron, 
+          { transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }
+        ]}>›</Text>
+        <Text style={styles.title}>{title}</Text>
       </TouchableOpacity>
-      {isOpen && <ThemedView style={styles.content}>{children}</ThemedView>}
-    </ThemedView>
+      {isOpen && <View style={styles.content}>{children}</View>}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: Spacing.md,
+    marginVertical: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: 8,
+    padding: Spacing.md,
+  },
   heading: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+  },
+  chevron: {
+    fontSize: 24,
+    marginRight: Spacing.sm,
+    color: Colors.primary,
+    fontWeight: 'bold',
+  },
+  title: {
+    fontSize: FontSizes.lg,
+    fontWeight: '600',
+    color: Colors.text,
   },
   content: {
-    marginTop: 6,
-    marginLeft: 24,
+    marginTop: Spacing.sm,
+    marginLeft: Spacing.lg,
   },
 });

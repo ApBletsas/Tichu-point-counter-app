@@ -1,110 +1,239 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useColors, useDarkMode, Spacing, FontSizes, BorderRadius, Shadows } from '../../constants/theme';
+import { Collapsible } from '../../components/Collapsible';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function TutorialScreen() {
+  const colors = useColors();
+  const darkMode = useDarkMode();
 
-export default function TabTwoScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={darkMode ? "light" : "dark"} />
+      
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={[styles.headerContainer, { backgroundColor: colors.primary }]}>
+          <Text style={styles.headerTitle}>Tichu Guide</Text>
+          <Text style={styles.headerSubtitle}>Rules, Scoring & Strategy</Text>
+        </View>
+        
+        <Collapsible title="About Tichu" initiallyExpanded={true}>
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            Tichu is a fast-paced climbing card game for 4 players in fixed partnerships. The goal is to be the first team to reach 1000 points. The game is played with a standard 52-card deck plus 4 special cards.
+          </Text>
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            It combines elements of Bridge, Big Two, and other climbing games. Teams sit across from each other and work together to optimize their play.
+          </Text>
+        </Collapsible>
+        
+        <Collapsible title="Basic Scoring">
+          <View style={styles.ruleContainer}>
+            <Text style={[styles.ruleBullet, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.ruleText, { color: colors.text }]}>
+              <Text style={styles.boldText}>Points per round:</Text> In each hand, players earn points from cards: Kings (10), Tens (10), Fives (5), and Dragons (25).
+            </Text>
+          </View>
+          
+          <View style={styles.ruleContainer}>
+            <Text style={[styles.ruleBullet, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.ruleText, { color: colors.text }]}>
+              <Text style={styles.boldText}>Zero-sum game:</Text> Points in each hand always total 100 (excluding bonuses).
+            </Text>
+          </View>
+          
+          <View style={styles.ruleContainer}>
+            <Text style={[styles.ruleBullet, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.ruleText, { color: colors.text }]}>
+              <Text style={styles.boldText}>First out:</Text> The first player to play all their cards earns 0 points but gives their remaining cards to their partner.
+            </Text>
+          </View>
+          
+          <View style={styles.ruleContainer}>
+            <Text style={[styles.ruleBullet, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.ruleText, { color: colors.text }]}>
+              <Text style={styles.boldText}>Last player:</Text> The last player with cards gives all remaining cards to the opposing team.
+            </Text>
+          </View>
+        </Collapsible>
+        
+        <Collapsible title="Special Calls">
+          <View style={[styles.callBox, { backgroundColor: colors.primary, opacity: 0.9 }]}>
+            <Text style={styles.callTitle}>Tichu Call</Text>
+            <Text style={styles.callDescription}>
+              A player can call "Tichu" before playing their first card. If they go out first, their team gets +100 points. If they fail, their team loses 100 points.
+            </Text>
+          </View>
+          
+          <View style={[styles.callBox, { backgroundColor: colors.secondary, opacity: 0.9 }]}>
+            <Text style={styles.callTitle}>Grand Tichu Call</Text>
+            <Text style={styles.callDescription}>
+              A player can call "Grand Tichu" before seeing their 9th card. If they go out first, their team gets +200 points. If they fail, their team loses 200 points.
+            </Text>
+          </View>
+          
+          <View style={[styles.callBox, { backgroundColor: colors.teamA, opacity: 0.9 }]}>
+            <Text style={styles.callTitle}>1-2 Finish (Double Victory)</Text>
+            <Text style={styles.callDescription}>
+              If both players on a team go out 1-2 (before either opponent plays all cards), they earn +200 additional points, regardless of points in the cards.
+            </Text>
+          </View>
+        </Collapsible>
+        
+        <Collapsible title="Special Cards">
+          <View style={styles.specialCardContainer}>
+            <View style={[styles.specialCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.specialCardTitle, { color: colors.teamA }]}>Dragon</Text>
+              <Text style={[styles.specialCardDescription, { color: colors.text }]}>
+                Highest single card. Worth 25 points. Must give points to the opposing team.
+              </Text>
+            </View>
+            
+            <View style={[styles.specialCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.specialCardTitle, { color: colors.teamB }]}>Phoenix</Text>
+              <Text style={[styles.specialCardDescription, { color: colors.text }]}>
+                Can be played as a wild card with value 0.5 higher than the previous card. Worth -25 points.
+              </Text>
+            </View>
+            
+            <View style={[styles.specialCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.specialCardTitle, { color: colors.primary }]}>Dog</Text>
+              <Text style={[styles.specialCardDescription, { color: colors.text }]}>
+                Can only lead. Gives the lead to your partner. Worth 0 points.
+              </Text>
+            </View>
+            
+            <View style={[styles.specialCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.specialCardTitle, { color: colors.secondary }]}>Mah Jong (1)</Text>
+              <Text style={[styles.specialCardDescription, { color: colors.text }]}>
+                Lowest card. Makes a wish. Worth 0 points.
+              </Text>
+            </View>
+          </View>
+        </Collapsible>
+        
+        <Collapsible title="App Instructions">
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            <Text style={styles.boldText}>Entering scores:</Text> For each round, enter the basic trick points (typically adding up to 100) for each team, then mark any special calls.
+          </Text>
+          
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            <Text style={styles.boldText}>Tichu calls:</Text> Select the Tichu or Grand Tichu button for the appropriate team, then mark it as Success or Failure.
+          </Text>
+          
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            <Text style={styles.boldText}>1-2 Finish:</Text> If a team achieves a double victory (both players out first), select the 1-2 button for that team to add 200 bonus points.
+          </Text>
+          
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            <Text style={styles.boldText}>History:</Text> View round history and running totals in the History tab.
+          </Text>
+          
+          <Text style={[styles.sectionText, { color: colors.text }]}>
+            <Text style={styles.boldText}>Settings:</Text> Customize team names, winning score, and toggle dark mode in the Settings tab.
+          </Text>
+        </Collapsible>
+        
+        <View style={styles.footer}>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            Happy Tichu playing!
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  scrollContent: {
+    paddingBottom: Spacing.xl,
+  },
+  headerContainer: {
+    padding: Spacing.lg,
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  headerTitle: {
+    fontSize: FontSizes.title,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: Spacing.xs,
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: FontSizes.lg,
+    color: 'white',
+    opacity: 0.9,
+    textAlign: 'center',
+  },
+  sectionText: {
+    fontSize: FontSizes.md,
+    lineHeight: FontSizes.md * 1.5,
+    marginBottom: Spacing.md,
+  },
+  ruleContainer: {
     flexDirection: 'row',
-    gap: 8,
+    marginBottom: Spacing.md,
+    paddingRight: Spacing.md,
+  },
+  ruleBullet: {
+    fontSize: FontSizes.xl,
+    lineHeight: FontSizes.md * 1.5,
+    marginRight: Spacing.sm,
+  },
+  ruleText: {
+    flex: 1,
+    fontSize: FontSizes.md,
+    lineHeight: FontSizes.md * 1.5,
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  callBox: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.md,
+  },
+  callTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
+  },
+  callDescription: {
+    fontSize: FontSizes.md,
+    color: 'white',
+    lineHeight: FontSizes.md * 1.5,
+  },
+  specialCardContainer: {
+    marginVertical: Spacing.sm,
+  },
+  specialCard: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
+  },
+  specialCardTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: 'bold',
+    marginBottom: Spacing.sm,
+  },
+  specialCardDescription: {
+    fontSize: FontSizes.md,
+    lineHeight: FontSizes.md * 1.5,
+  },
+  footer: {
+    marginTop: Spacing.lg,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: FontSizes.md,
+    fontStyle: 'italic',
   },
 });
