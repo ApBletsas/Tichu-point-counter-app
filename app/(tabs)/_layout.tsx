@@ -1,8 +1,8 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
-import { useGameStore } from '../../store/gameStore';
+import { Tabs } from 'expo-router';
 import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import { useGameStore } from '../../store/gameStore';
 
 import { Colors } from '../../constants/theme';
 
@@ -47,6 +47,13 @@ export default function TabLayout() {
         options={{
           title: 'History',
           tabBarIcon: ({ color }) => <TabBarIcon name="history" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: 'Stats',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
         }}
       />
       <Tabs.Screen
