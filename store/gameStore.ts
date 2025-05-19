@@ -1,5 +1,5 @@
-import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from 'zustand';
 
 export interface Team {
   id: 'A' | 'B';
@@ -35,6 +35,7 @@ export interface GameState {
   addRound: (teamAPoints: number, teamBPoints: number, calls: Call[]) => void;
   undoLastRound: () => void;
   resetGame: () => void;
+  startNewGame: () => void;
   getTotalScore: (teamId: 'A' | 'B') => number;
   loadGame: () => Promise<void>;
   saveGame: () => Promise<void>;
@@ -174,6 +175,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
       },
       winningScore: 1000,
+      rounds: [],
+      isGameOver: false,
+      winningTeam: null
+    }));
+    get().saveGame();
+  },
+
+  startNewGame: () => {
+    set((state) => ({
       rounds: [],
       isGameOver: false,
       winningTeam: null

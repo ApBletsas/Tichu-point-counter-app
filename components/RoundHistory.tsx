@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useColors, Spacing, BorderRadius, FontSizes, Shadows } from '../constants/theme';
-import { Round, Call } from '../store/gameStore';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors } from '../constants/theme';
+import { Call, Round } from '../store/gameStore';
 
 interface RoundHistoryProps {
   rounds: Round[];
@@ -69,7 +69,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
         )}
       </View>
       
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {rounds.length === 0 ? (
           <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>No rounds played yet</Text>
         ) : (
@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: BorderRadius.md,
     ...Shadows.md,
-    marginVertical: Spacing.md,
   },
   header: {
     flexDirection: 'row',
@@ -128,7 +127,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   scrollView: {
-    maxHeight: 300,
+    flex: 1,
+  },
+  scrollContent: {
+    padding: Spacing.md,
   },
   emptyMessage: {
     padding: Spacing.lg,
@@ -136,8 +138,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   roundItem: {
-    marginVertical: Spacing.sm,
-    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
     borderRadius: BorderRadius.md,
     overflow: 'hidden',
     borderWidth: 1,

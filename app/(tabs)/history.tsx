@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useGameStore } from '../../store/gameStore';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { RoundHistory } from '../../components/RoundHistory';
-import { useColors, useDarkMode, Spacing, FontSizes, BorderRadius, Shadows } from '../../constants/theme';
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors, useDarkMode } from '../../constants/theme';
+import { useGameStore } from '../../store/gameStore';
 
 export default function HistoryScreen() {
   const { rounds, undoLastRound, teams } = useGameStore();
@@ -14,25 +14,23 @@ export default function HistoryScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={darkMode ? "light" : "dark"} />
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.headerContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Game History</Text>
+      <View style={styles.headerContainer}>
+        <Text style={[styles.title, { color: colors.text }]}>Game History</Text>
+      </View>
+      
+      {rounds.length === 0 ? (
+        <View style={[styles.emptyContainer, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No rounds played yet</Text>
         </View>
-        
-        {rounds.length === 0 ? (
-          <View style={[styles.emptyContainer, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No rounds played yet</Text>
-          </View>
-        ) : (
-          <View style={styles.historyContainer}>
-            <RoundHistory 
-              rounds={rounds} 
-              teamNames={{ A: teams.A.name, B: teams.B.name }}
-              onUndoLastRound={undoLastRound} 
-            />
-          </View>
-        )}
-      </ScrollView>
+      ) : (
+        <View style={styles.historyContainer}>
+          <RoundHistory 
+            rounds={rounds} 
+            teamNames={{ A: teams.A.name, B: teams.B.name }}
+            onUndoLastRound={undoLastRound} 
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -41,24 +39,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContent: {
+  headerContainer: {
     padding: Spacing.md,
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
   title: {
-    fontSize: FontSizes.xxl,
+    fontSize: FontSizes.xl,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   emptyContainer: {
-    padding: Spacing.xl,
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    margin: Spacing.md,
     borderRadius: BorderRadius.md,
     ...Shadows.md,
   },
@@ -67,6 +60,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   historyContainer: {
-    marginBottom: Spacing.lg,
+    flex: 1,
   },
 }); 

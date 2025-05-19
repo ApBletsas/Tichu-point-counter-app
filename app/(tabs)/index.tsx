@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useGameStore, Call } from '../../store/gameStore';
-import { ScoreCard } from '../../components/ScoreCard';
-import { NumberInput } from '../../components/NumberInput';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Button } from '../../components/Button';
+import { NumberInput } from '../../components/NumberInput';
+import { ScoreCard } from '../../components/ScoreCard';
 import { TichuCallToggle } from '../../components/TichuCallToggle';
-import { useColors, useDarkMode, Spacing, FontSizes, BorderRadius, Shadows } from '../../constants/theme';
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors, useDarkMode } from '../../constants/theme';
+import { Call, useGameStore } from '../../store/gameStore';
 
 export default function GameScreen() {
   const colors = useColors();
@@ -335,204 +335,213 @@ export default function GameScreen() {
         
         {/* Game Over Banner */}
         {isGameOver && (
-          <View style={[styles.gameOverBanner, { backgroundColor: colors.success }]}>
-            <Text style={[styles.gameOverText, { color: colors.surface }]}>
-              Game Over! {winningTeam === 'A' ? teams.A.name : teams.B.name} Wins!
-            </Text>
+          <View style={styles.gameOverContainer}>
+            <View style={[styles.gameOverBanner, { backgroundColor: colors.success }]}>
+              <Text style={[styles.gameOverText, { color: colors.surface }]}>
+                Game Over! {winningTeam === 'A' ? teams.A.name : teams.B.name} Wins!
+              </Text>
+            </View>
+            <Button
+              title="New Game"
+              onPress={() => useGameStore.getState().startNewGame()}
+              style={styles.newGameButton}
+            />
           </View>
         )}
         
         {/* Input for new round */}
-        <View style={[styles.roundInputContainer, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>New Round</Text>
-          
-          <View style={styles.pointsInputContainer}>
-            <View style={styles.inputRow}>
-              <NumberInput
-                label={`${teams.A.name} Points`}
-                value={teamAPoints}
-                onChange={handleTeamAPointsChange}
-                min={-25}
-                max={125}
-                step={5}
-                style={styles.largerInput}
-              />
+        {!isGameOver && (
+          <View style={[styles.roundInputContainer, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>New Round</Text>
+            
+            <View style={styles.pointsInputContainer}>
+              <View style={styles.inputRow}>
+                <NumberInput
+                  label={`${teams.A.name} Points`}
+                  value={teamAPoints}
+                  onChange={handleTeamAPointsChange}
+                  min={-25}
+                  max={125}
+                  step={5}
+                  style={styles.largerInput}
+                />
+                
+                <NumberInput
+                  label={`${teams.B.name} Points`}
+                  value={teamBPoints}
+                  onChange={handleTeamBPointsChange}
+                  min={-25}
+                  max={125}
+                  step={5}
+                  style={styles.largerInput}
+                />
+              </View>
               
-              <NumberInput
-                label={`${teams.B.name} Points`}
-                value={teamBPoints}
-                onChange={handleTeamBPointsChange}
-                min={-25}
-                max={125}
-                step={5}
-                style={styles.largerInput}
-              />
-            </View>
-            
-            <Text style={[styles.pointsSum, { color: colors.textSecondary }]}>
-              Total: {teamAPoints + teamBPoints} {teamAPoints + teamBPoints !== 100 && teamAPoints + teamBPoints !== 0 ? '(should be 100)' : ''}
-            </Text>
-            
-            {/* Quick point presets */}
-            <View style={styles.quickPresetsContainer}>
-              <Text style={[styles.quickPresetTitle, { color: colors.text }]}>Quick Points:</Text>
-              <View style={styles.quickPresetButtons}>
-                <TouchableOpacity
-                  style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleQuickPointPreset(100, 0)}
-                >
-                  <Text style={[styles.quickPresetText, { color: colors.surface }]}>100-0</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleQuickPointPreset(75, 25)}
-                >
-                  <Text style={[styles.quickPresetText, { color: colors.surface }]}>75-25</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleQuickPointPreset(50, 50)}
-                >
-                  <Text style={[styles.quickPresetText, { color: colors.surface }]}>50-50</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleQuickPointPreset(25, 75)}
-                >
-                  <Text style={[styles.quickPresetText, { color: colors.surface }]}>25-75</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleQuickPointPreset(0, 100)}
-                >
-                  <Text style={[styles.quickPresetText, { color: colors.surface }]}>0-100</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-          
-          {/* Game Calls */}
-          <Text style={[styles.subSectionTitle, { color: colors.text }]}>Game Calls</Text>
-          
-          <View style={styles.tichuContainer}>
-            <View style={styles.teamCallsContainer}>
-              <View style={[styles.teamBanner, { backgroundColor: colors.teamA }]}>
-                <Text style={[styles.teamBannerText, { color: colors.surface }]}>{teams.A.name}</Text>
-              </View>
-              <View style={styles.teamCallsRow}>
-                <TichuCallToggle
-                  type="tichu"
-                  teamName=""
-                  teamColor={colors.teamA}
-                  selected={isCallSelected('A', 'tichu')}
-                  successful={getCallOutcome('A', 'tichu')}
-                  onToggle={() => handleCall('A', 'tichu')}
-                  onSuccess={(success) => handleCallOutcome('A', 'tichu', success)}
-                  disabled={isCallDisabled('A', 'tichu')}
-                  failedOnly={isFailedOnly('A', 'tichu')}
-                />
-                <TichuCallToggle
-                  type="grandTichu"
-                  teamName=""
-                  teamColor={colors.teamA}
-                  selected={isCallSelected('A', 'grandTichu')}
-                  successful={getCallOutcome('A', 'grandTichu')}
-                  onToggle={() => handleCall('A', 'grandTichu')}
-                  onSuccess={(success) => handleCallOutcome('A', 'grandTichu', success)}
-                  disabled={isCallDisabled('A', 'grandTichu')}
-                  failedOnly={isFailedOnly('A', 'grandTichu')}
-                />
-                <TichuCallToggle
-                  type="oneTwo"
-                  teamName=""
-                  teamColor={colors.teamA}
-                  selected={isCallSelected('A', 'oneTwo')}
-                  successful={null}
-                  onToggle={() => handleCall('A', 'oneTwo')}
-                  onSuccess={() => {}}
-                  disabled={isCallDisabled('A', 'oneTwo')}
-                  failedOnly={false}
-                />
-              </View>
-            </View>
-            
-            <View style={styles.teamCallsContainer}>
-              <View style={[styles.teamBanner, { backgroundColor: colors.teamB }]}>
-                <Text style={[styles.teamBannerText, { color: colors.surface }]}>{teams.B.name}</Text>
-              </View>
-              <View style={styles.teamCallsRow}>
-                <TichuCallToggle
-                  type="tichu"
-                  teamName=""
-                  teamColor={colors.teamB}
-                  selected={isCallSelected('B', 'tichu')}
-                  successful={getCallOutcome('B', 'tichu')}
-                  onToggle={() => handleCall('B', 'tichu')}
-                  onSuccess={(success) => handleCallOutcome('B', 'tichu', success)}
-                  disabled={isCallDisabled('B', 'tichu')}
-                  failedOnly={isFailedOnly('B', 'tichu')}
-                />
-                <TichuCallToggle
-                  type="grandTichu"
-                  teamName=""
-                  teamColor={colors.teamB}
-                  selected={isCallSelected('B', 'grandTichu')}
-                  successful={getCallOutcome('B', 'grandTichu')}
-                  onToggle={() => handleCall('B', 'grandTichu')}
-                  onSuccess={(success) => handleCallOutcome('B', 'grandTichu', success)}
-                  disabled={isCallDisabled('B', 'grandTichu')}
-                  failedOnly={isFailedOnly('B', 'grandTichu')}
-                />
-                <TichuCallToggle
-                  type="oneTwo"
-                  teamName=""
-                  teamColor={colors.teamB}
-                  selected={isCallSelected('B', 'oneTwo')}
-                  successful={null}
-                  onToggle={() => handleCall('B', 'oneTwo')}
-                  onSuccess={() => {}}
-                  disabled={isCallDisabled('B', 'oneTwo')}
-                  failedOnly={false}
-                />
-              </View>
-            </View>
-          </View>
-          
-          {/* Point adjustment info */}
-          {(teamADifference !== 0 || teamBDifference !== 0) && (
-            <View style={[styles.adjustmentContainer, { backgroundColor: colors.background }]}>
-              <Text style={[styles.adjustmentTitle, { color: colors.text }]}>Game Score Adjustments:</Text>
-              {teamADifference !== 0 && (
-                <Text style={[
-                  styles.adjustmentText,
-                  teamADifference > 0 ? { color: colors.success } : { color: colors.error }
-                ]}>
-                  {teams.A.name}: {teamADifference > 0 ? '+' : ''}{teamADifference} points
-                </Text>
-              )}
-              {teamBDifference !== 0 && (
-                <Text style={[
-                  styles.adjustmentText,
-                  teamBDifference > 0 ? { color: colors.success } : { color: colors.error }
-                ]}>
-                  {teams.B.name}: {teamBDifference > 0 ? '+' : ''}{teamBDifference} points
-                </Text>
-              )}
-              <Text style={[styles.finalScoreText, { color: colors.primary }]}>
-                Final round score: {teams.A.name} {adjustedTeamAPoints} - {teams.B.name} {adjustedTeamBPoints}
+              <Text style={[styles.pointsSum, { color: colors.textSecondary }]}>
+                Total: {teamAPoints + teamBPoints} {teamAPoints + teamBPoints !== 100 && teamAPoints + teamBPoints !== 0 ? '(should be 100)' : ''}
               </Text>
+              
+              {/* Quick point presets */}
+              <View style={styles.quickPresetsContainer}>
+                <Text style={[styles.quickPresetTitle, { color: colors.text }]}>Quick Points:</Text>
+                <View style={styles.quickPresetButtons}>
+                  <TouchableOpacity
+                    style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
+                    onPress={() => handleQuickPointPreset(100, 0)}
+                  >
+                    <Text style={[styles.quickPresetText, { color: colors.surface }]}>100-0</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
+                    onPress={() => handleQuickPointPreset(75, 25)}
+                  >
+                    <Text style={[styles.quickPresetText, { color: colors.surface }]}>75-25</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
+                    onPress={() => handleQuickPointPreset(50, 50)}
+                  >
+                    <Text style={[styles.quickPresetText, { color: colors.surface }]}>50-50</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
+                    onPress={() => handleQuickPointPreset(25, 75)}
+                  >
+                    <Text style={[styles.quickPresetText, { color: colors.surface }]}>25-75</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.quickPresetButton, { backgroundColor: colors.primary }]}
+                    onPress={() => handleQuickPointPreset(0, 100)}
+                  >
+                    <Text style={[styles.quickPresetText, { color: colors.surface }]}>0-100</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          )}
-          
-          <Button 
-            title="Submit Round" 
-            onPress={handleSubmitRound} 
-            size="large"
-            fullWidth
-            variant="primary"
-            style={styles.submitButton}
-          />
-        </View>
+            
+            {/* Game Calls */}
+            <Text style={[styles.subSectionTitle, { color: colors.text }]}>Game Calls</Text>
+            
+            <View style={styles.tichuContainer}>
+              <View style={styles.teamCallsContainer}>
+                <View style={[styles.teamBanner, { backgroundColor: colors.teamA }]}>
+                  <Text style={[styles.teamBannerText, { color: colors.surface }]}>{teams.A.name}</Text>
+                </View>
+                <View style={styles.teamCallsRow}>
+                  <TichuCallToggle
+                    type="tichu"
+                    teamName=""
+                    teamColor={colors.teamA}
+                    selected={isCallSelected('A', 'tichu')}
+                    successful={getCallOutcome('A', 'tichu')}
+                    onToggle={() => handleCall('A', 'tichu')}
+                    onSuccess={(success) => handleCallOutcome('A', 'tichu', success)}
+                    disabled={isCallDisabled('A', 'tichu')}
+                    failedOnly={isFailedOnly('A', 'tichu')}
+                  />
+                  <TichuCallToggle
+                    type="grandTichu"
+                    teamName=""
+                    teamColor={colors.teamA}
+                    selected={isCallSelected('A', 'grandTichu')}
+                    successful={getCallOutcome('A', 'grandTichu')}
+                    onToggle={() => handleCall('A', 'grandTichu')}
+                    onSuccess={(success) => handleCallOutcome('A', 'grandTichu', success)}
+                    disabled={isCallDisabled('A', 'grandTichu')}
+                    failedOnly={isFailedOnly('A', 'grandTichu')}
+                  />
+                  <TichuCallToggle
+                    type="oneTwo"
+                    teamName=""
+                    teamColor={colors.teamA}
+                    selected={isCallSelected('A', 'oneTwo')}
+                    successful={null}
+                    onToggle={() => handleCall('A', 'oneTwo')}
+                    onSuccess={() => {}}
+                    disabled={isCallDisabled('A', 'oneTwo')}
+                    failedOnly={false}
+                  />
+                </View>
+              </View>
+              
+              <View style={styles.teamCallsContainer}>
+                <View style={[styles.teamBanner, { backgroundColor: colors.teamB }]}>
+                  <Text style={[styles.teamBannerText, { color: colors.surface }]}>{teams.B.name}</Text>
+                </View>
+                <View style={styles.teamCallsRow}>
+                  <TichuCallToggle
+                    type="tichu"
+                    teamName=""
+                    teamColor={colors.teamB}
+                    selected={isCallSelected('B', 'tichu')}
+                    successful={getCallOutcome('B', 'tichu')}
+                    onToggle={() => handleCall('B', 'tichu')}
+                    onSuccess={(success) => handleCallOutcome('B', 'tichu', success)}
+                    disabled={isCallDisabled('B', 'tichu')}
+                    failedOnly={isFailedOnly('B', 'tichu')}
+                  />
+                  <TichuCallToggle
+                    type="grandTichu"
+                    teamName=""
+                    teamColor={colors.teamB}
+                    selected={isCallSelected('B', 'grandTichu')}
+                    successful={getCallOutcome('B', 'grandTichu')}
+                    onToggle={() => handleCall('B', 'grandTichu')}
+                    onSuccess={(success) => handleCallOutcome('B', 'grandTichu', success)}
+                    disabled={isCallDisabled('B', 'grandTichu')}
+                    failedOnly={isFailedOnly('B', 'grandTichu')}
+                  />
+                  <TichuCallToggle
+                    type="oneTwo"
+                    teamName=""
+                    teamColor={colors.teamB}
+                    selected={isCallSelected('B', 'oneTwo')}
+                    successful={null}
+                    onToggle={() => handleCall('B', 'oneTwo')}
+                    onSuccess={() => {}}
+                    disabled={isCallDisabled('B', 'oneTwo')}
+                    failedOnly={false}
+                  />
+                </View>
+              </View>
+            </View>
+            
+            {/* Point adjustment info */}
+            {(teamADifference !== 0 || teamBDifference !== 0) && (
+              <View style={[styles.adjustmentContainer, { backgroundColor: colors.background }]}>
+                <Text style={[styles.adjustmentTitle, { color: colors.text }]}>Game Score Adjustments:</Text>
+                {teamADifference !== 0 && (
+                  <Text style={[
+                    styles.adjustmentText,
+                    teamADifference > 0 ? { color: colors.success } : { color: colors.error }
+                  ]}>
+                    {teams.A.name}: {teamADifference > 0 ? '+' : ''}{teamADifference} points
+                  </Text>
+                )}
+                {teamBDifference !== 0 && (
+                  <Text style={[
+                    styles.adjustmentText,
+                    teamBDifference > 0 ? { color: colors.success } : { color: colors.error }
+                  ]}>
+                    {teams.B.name}: {teamBDifference > 0 ? '+' : ''}{teamBDifference} points
+                  </Text>
+                )}
+                <Text style={[styles.finalScoreText, { color: colors.primary }]}>
+                  Final round score: {teams.A.name} {adjustedTeamAPoints} - {teams.B.name} {adjustedTeamBPoints}
+                </Text>
+              </View>
+            )}
+            
+            <Button 
+              title="Submit Round" 
+              onPress={handleSubmitRound} 
+              size="large"
+              fullWidth
+              variant="primary"
+              style={styles.submitButton}
+            />
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -550,16 +559,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
+  gameOverContainer: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
   gameOverBanner: {
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    marginVertical: Spacing.md,
-    ...Shadows.md,
+    padding: 16,
+    borderRadius: BorderRadius.lg,
+    marginBottom: 8,
+    width: '100%',
   },
   gameOverText: {
-    fontSize: FontSizes.xl,
+    fontSize: FontSizes.lg,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  newGameButton: {
+    width: '50%',
   },
   roundInputContainer: {
     borderRadius: BorderRadius.md,
