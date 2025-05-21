@@ -1,21 +1,29 @@
+// Import React for component definition
 import React from 'react';
+// Import React Native components for building the UI
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+// Import theme constants and hooks for consistent styling
 import { BorderRadius, FontSizes, Shadows, Spacing, useColors } from '../constants/theme';
+// Import types for game data
 import { Call, Round } from '../store/gameStore';
 
+// Define the props interface for the RoundHistory component
 interface RoundHistoryProps {
-  rounds: Round[];
-  teamNames: { A: string, B: string };
-  onUndoLastRound: () => void;
+  rounds: Round[];                    // Array of completed rounds
+  teamNames: { A: string, B: string };  // Names of both teams
+  onUndoLastRound: () => void;       // Callback for undoing the last round
 }
 
+// RoundHistory component definition
 export const RoundHistory: React.FC<RoundHistoryProps> = ({
   rounds,
   teamNames,
   onUndoLastRound,
 }) => {
+  // Get theme colors for styling
   const colors = useColors();
   
+  // Helper function to render special calls information
   const renderCallsInfo = (calls: Call[]) => {
     if (calls.length === 0) return null;
     
@@ -25,6 +33,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
           let callType = 'Unknown';
           let callDisplay = '';
           
+          // Format call information based on type
           if (call.type === 'tichu') {
             callType = 'Tichu';
             const callResult = call.successful ? 'Success' : 'Failure';
@@ -37,6 +46,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
             callDisplay = '1-2 (+200 points)';
           }
           
+          // Get team name based on team ID
           const teamName = call.teamId === 'A' ? teamNames.A : teamNames.B;
           
           return (
@@ -57,6 +67,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      {/* Header section with title and undo button */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <Text style={[styles.title, { color: colors.text }]}>Round History</Text>
         {rounds.length > 0 && (
@@ -69,17 +80,23 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
         )}
       </View>
       
+      {/* Scrollable content area */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {rounds.length === 0 ? (
+          // Display message when no rounds have been played
           <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>No rounds played yet</Text>
         ) : (
+          // Map through and display each round
           rounds.map((round, index) => (
             <View key={index} style={[styles.roundItem, { borderColor: colors.border }]}>
+              {/* Round header with round number */}
               <View style={[styles.roundHeader, { backgroundColor: colors.primary }]}>
                 <Text style={[styles.roundNumber, { color: colors.surface }]}>Round {round.id}</Text>
               </View>
               
+              {/* Round content with scores and calls */}
               <View style={styles.roundContent}>
+                {/* Team scores display */}
                 <View style={styles.scoreRow}>
                   <View style={[styles.teamScore, { backgroundColor: colors.teamA }]}>
                     <Text style={[styles.scoreText, { color: colors.surface }]}>{teamNames.A}: {round.teamAPoints}</Text>
@@ -89,6 +106,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
                   </View>
                 </View>
                 
+                {/* Display special calls for the round */}
                 {renderCallsInfo(round.calls)}
               </View>
             </View>
@@ -99,6 +117,7 @@ export const RoundHistory: React.FC<RoundHistoryProps> = ({
   );
 };
 
+// Style definitions for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -181,4 +200,4 @@ const styles = StyleSheet.create({
   callText: {
     fontSize: FontSizes.sm,
   },
-}); 
+});

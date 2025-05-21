@@ -1,20 +1,26 @@
+// Import React for component definition
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useColors, Spacing, BorderRadius, FontSizes, Shadows } from '../constants/theme';
+// Import React Native components for building the UI
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+// Import theme constants and hooks for consistent styling
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors } from '../constants/theme';
+// Import Material Icons for the cancel button
 import { MaterialIcons } from '@expo/vector-icons';
 
+// Define the props interface for the TichuCallToggle component
 interface TichuCallToggleProps {
-  type: 'tichu' | 'grandTichu' | 'oneTwo';
-  teamName: string;
-  teamColor?: string;
-  selected: boolean;
-  successful: boolean | null;
-  onToggle: () => void;
-  onSuccess: (success: boolean) => void;
-  disabled?: boolean;
-  failedOnly?: boolean;  // New prop to indicate that only "Failed" is allowed
+  type: 'tichu' | 'grandTichu' | 'oneTwo';  // Type of special call
+  teamName: string;                         // Name of the team making the call
+  teamColor?: string;                       // Team's theme color
+  selected: boolean;                        // Whether the call is selected
+  successful: boolean | null;               // Call outcome (null if not yet determined)
+  onToggle: () => void;                     // Callback for toggling selection
+  onSuccess: (success: boolean) => void;    // Callback for setting success/failure
+  disabled?: boolean;                       // Whether the toggle is disabled
+  failedOnly?: boolean;                     // Whether only "Failed" is allowed
 }
 
+// TichuCallToggle component definition with default props
 export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
   type,
   teamName,
@@ -26,8 +32,10 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
   disabled = false,
   failedOnly = false,
 }) => {
+  // Get theme colors for styling
   const colors = useColors();
   
+  // Helper function to get the display title based on call type
   const getTitle = () => {
     if (type === 'tichu') return 'Tichu';
     if (type === 'grandTichu') return 'Grand Tichu';
@@ -35,16 +43,20 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
     return '';
   };
 
+  // Helper function to determine container style based on state
   const getContainerStyle = () => {
+    // Handle disabled state
     if (disabled) return [styles.container, { borderColor: colors.border, backgroundColor: colors.border, opacity: 0.6 }];
+    // Handle unselected state
     if (!selected) return [styles.container, { borderColor: colors.border, backgroundColor: colors.surface }];
     
-    // For oneTwo, use success style when selected
+    // Handle 1-2 call style
     if (type === 'oneTwo') return [styles.container, { borderColor: colors.success, backgroundColor: colors.success }];
 
-    // For tichu and grandTichu
+    // Handle Tichu and Grand Tichu styles
     const baseStyle = [styles.container, { borderColor: colors.primary, backgroundColor: colors.primary }];
     
+    // Apply success/failure colors
     if (successful === true) {
       return [...baseStyle, { borderColor: colors.success, backgroundColor: colors.success }];
     } else if (successful === false) {
@@ -54,24 +66,26 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
     return baseStyle;
   };
 
+  // Handle press events on the toggle
   const handlePress = () => {
     if (disabled) return;
     
-    // If this is a failed-only call and it's not selected yet,
-    // automatically mark it as failed when selected
+    // Handle failed-only calls
     if (failedOnly && !selected && type !== 'oneTwo') {
       onToggle();
       onSuccess(false);
       return;
     }
     
-    // For all call types, just toggle the selected state
     onToggle();
   };
 
   return (
     <View style={styles.wrapper}>
+      {/* Team name display */}
       {teamName ? <Text style={[styles.teamName, teamColor ? { color: teamColor } : { color: colors.text }]}>{teamName}</Text> : null}
+      
+      {/* Main toggle button */}
       <TouchableOpacity 
         style={getContainerStyle()} 
         onPress={handlePress}
@@ -88,11 +102,11 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
           {failedOnly && !disabled && !selected ? " (Failed)" : ""}
         </Text>
         
-        {/* Cancel button when selected */}
+        {/* Cancel button for selected state */}
         {selected && !disabled && (
           <TouchableOpacity
             style={[styles.cancelButton, { backgroundColor: colors.error }]}
-            onPress={onToggle} // Same as toggle, will unselect it
+            onPress={onToggle}
             hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
           >
             <MaterialIcons name="cancel" size={18} color={colors.surface} />
@@ -100,7 +114,7 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
         )}
       </TouchableOpacity>
       
-      {/* Only show success/failure options for tichu and grandTichu */}
+      {/* Success/Failure buttons for Tichu and Grand Tichu */}
       {selected && !disabled && !failedOnly && type !== 'oneTwo' && successful === null && (
         <View style={styles.outcomeContainer}>
           <TouchableOpacity 
@@ -118,14 +132,14 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
         </View>
       )}
       
-      {/* Auto-set to Failed for failedOnly - just show Failed state */}
+      {/* Failed-only state display */}
       {selected && !disabled && failedOnly && type !== 'oneTwo' && (
         <Text style={[styles.outcomeLabel, { color: colors.error }]}>
           Failure
         </Text>
       )}
       
-      {/* Normal outcome label for non-failedOnly */}
+      {/* Success/Failure outcome display */}
       {selected && !disabled && !failedOnly && type !== 'oneTwo' && successful !== null && (
         <Text style={[
           styles.outcomeLabel,
@@ -135,7 +149,7 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
         </Text>
       )}
       
-      {/* For oneTwo, always show +200 points when selected */}
+      {/* Points display for 1-2 calls */}
       {selected && !disabled && type === 'oneTwo' && (
         <Text style={[styles.outcomeLabel, { color: colors.success }]}>
           +200 points
@@ -145,6 +159,7 @@ export const TichuCallToggle: React.FC<TichuCallToggleProps> = ({
   );
 };
 
+// Style definitions for the component
 const styles = StyleSheet.create({
   wrapper: {
     marginVertical: Spacing.sm,
@@ -164,7 +179,7 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: 'center',
     ...Shadows.sm,
-    position: 'relative', // Add this for absolute positioning of cancel button
+    position: 'relative',
   },
   title: {
     fontSize: FontSizes.md,
@@ -203,4 +218,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Shadows.sm,
   },
-}); 
+});

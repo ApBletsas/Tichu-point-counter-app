@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Alert, Switch } from 'react-native';
+/**
+ * Settings Screen Component
+ * 
+ * This screen provides configuration options for the Tichu Point Counter app.
+ * Users can:
+ * - Customize team names
+ * - Adjust the winning score threshold
+ * - Toggle between light and dark themes
+ * - Reset the current game
+ * - View app information and version
+ */
+
 import { StatusBar } from 'expo-status-bar';
-import { useGameStore } from '../../store/gameStore';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Button } from '../../components/Button';
 import { NumberInput } from '../../components/NumberInput';
-import { useColors, useDarkMode, useToggleDarkMode, Spacing, FontSizes, BorderRadius, Shadows } from '../../constants/theme';
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors, useDarkMode, useToggleDarkMode } from '../../constants/theme';
+import { useGameStore } from '../../store/gameStore';
 
 export default function SettingsScreen() {
   const colors = useColors();

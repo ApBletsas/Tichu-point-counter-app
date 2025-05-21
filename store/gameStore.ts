@@ -1,35 +1,41 @@
+// Import AsyncStorage for persistent storage
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// Import Zustand for state management
 import { create } from 'zustand';
 
+// Interface defining team structure
 export interface Team {
-  id: 'A' | 'B';
-  name: string;
+  id: 'A' | 'B';        // Team identifier
+  name: string;         // Team name
 }
 
+// Interface defining special call structure
 export interface Call {
-  type: 'tichu' | 'grandTichu' | 'oneTwo';
-  teamId: 'A' | 'B';
-  successful: boolean | null;
+  type: 'tichu' | 'grandTichu' | 'oneTwo';  // Type of special call
+  teamId: 'A' | 'B';                        // Team making the call
+  successful: boolean | null;                // Call outcome (null if not yet determined)
 }
 
+// Interface defining round structure
 export interface Round {
-  id: number;
-  teamAPoints: number;
-  teamBPoints: number;
-  calls: Call[];
+  id: number;           // Round number
+  teamAPoints: number;  // Points for Team A in this round
+  teamBPoints: number;  // Points for Team B in this round
+  calls: Call[];        // Special calls made in this round
 }
 
+// Interface defining the complete game state and actions
 export interface GameState {
   teams: {
     A: Team;
     B: Team;
   };
-  winningScore: number;
-  rounds: Round[];
-  isGameOver: boolean;
-  winningTeam: 'A' | 'B' | null;
+  winningScore: number;     // Score needed to win
+  rounds: Round[];          // Array of completed rounds
+  isGameOver: boolean;      // Whether the game has ended
+  winningTeam: 'A' | 'B' | null;  // Winning team identifier
 
-  // Actions
+  // Action methods
   setTeamName: (teamId: 'A' | 'B', name: string) => void;
   setWinningScore: (score: number) => void;
   addRound: (teamAPoints: number, teamBPoints: number, calls: Call[]) => void;
@@ -41,7 +47,7 @@ export interface GameState {
   saveGame: () => Promise<void>;
 }
 
-// Initialize with default values
+// Default state values
 const defaultState = {
   teams: {
     A: {
@@ -59,9 +65,11 @@ const defaultState = {
   winningTeam: null as ('A' | 'B' | null),
 };
 
+// Create the game store with Zustand
 export const useGameStore = create<GameState>((set, get) => ({
   ...defaultState,
 
+  // Action to update team name
   setTeamName: (teamId, name) => {
     set((state) => {
       const newTeams = { ...state.teams };
@@ -71,30 +79,32 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Action to update winning score
   setWinningScore: (score) => {
     set({ winningScore: score });
     get().saveGame();
   },
 
+  // Action to add a new round
   addRound: (teamAPoints, teamBPoints, calls) => {
     set((state) => {
-      // Adjust points based on Tichu calls
+      // Initialize adjusted points
       let adjustedTeamAPoints = teamAPoints;
       let adjustedTeamBPoints = teamBPoints;
       
-      // Process each call to adjust points
+      // Process special calls and adjust points
       calls.forEach(call => {
         const teamId = call.teamId;
         
         if (call.type === 'oneTwo') {
-          // For oneTwo, always add exactly 200 points if selected
+          // Handle 1-2 call (always +200 points)
           if (teamId === 'A') {
             adjustedTeamAPoints += 200;
           } else if (teamId === 'B') {
             adjustedTeamBPoints += 200;
           }
         } else if (call.successful === true) {
-          // Add points for successful calls (tichu or grandTichu)
+          // Handle successful Tichu/Grand Tichu
           const points = call.type === 'tichu' ? 100 : 200;
           if (teamId === 'A') {
             adjustedTeamAPoints += points;
@@ -102,7 +112,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             adjustedTeamBPoints += points;
           }
         } else if (call.successful === false) {
-          // Subtract points for failed calls (tichu or grandTichu)
+          // Handle failed Tichu/Grand Tichu
           const points = call.type === 'tichu' ? 100 : 200;
           if (teamId === 'A') {
             adjustedTeamAPoints -= points;
@@ -112,6 +122,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         }
       });
       
+      // Create new round
       const newRound: Round = {
         id: state.rounds.length + 1,
         teamAPoints: adjustedTeamAPoints,
@@ -121,11 +132,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const newRounds = [...state.rounds, newRound];
       
-      // Calculate new totals
+      // Calculate total scores
       const teamATotal = newRounds.reduce((total, round) => total + round.teamAPoints, 0);
       const teamBTotal = newRounds.reduce((total, round) => total + round.teamBPoints, 0);
       
-      // Check if any team reached winning score
+      // Check for game over condition
       let isGameOver = false;
       let winningTeam: 'A' | 'B' | null = null;
       
@@ -146,6 +157,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Action to undo the last round
   undoLastRound: () => {
     set((state) => {
       if (state.rounds.length === 0) return state;
@@ -162,6 +174,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Action to reset the game to initial state
   resetGame: () => {
     set(() => ({
       teams: {
@@ -182,6 +195,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Action to start a new game while keeping team settings
   startNewGame: () => {
     set((state) => ({
       rounds: [],
@@ -191,6 +205,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Helper to calculate total score for a team
   getTotalScore: (teamId) => {
     const { rounds } = get();
     return rounds.reduce((total, round) => {
@@ -198,6 +213,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }, 0);
   },
 
+  // Action to load game state from storage
   loadGame: async () => {
     try {
       const gameData = await AsyncStorage.getItem('tichuGameState');
@@ -210,6 +226,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
   },
 
+  // Action to save game state to storage
   saveGame: async () => {
     try {
       const state = get();
@@ -225,4 +242,4 @@ export const useGameStore = create<GameState>((set, get) => ({
       console.error('Failed to save game state:', error);
     }
   },
-})); 
+}));

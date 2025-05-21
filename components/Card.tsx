@@ -1,35 +1,43 @@
+// Import React for component definition
 import React from 'react';
-import { StyleSheet, View, ViewStyle, useColorScheme } from 'react-native';
+// Import necessary React Native components and types
+import { StyleSheet, View, ViewStyle } from 'react-native';
+// Import theme constants for consistent styling
+import { BorderRadius, Shadows } from '../constants/theme';
 
+// Define the props interface for the Card component
 interface CardProps {
-  children: React.ReactNode;
-  style?: ViewStyle;
-  backgroundColor?: string;
+  children: React.ReactNode;    // Content to be rendered inside the card
+  style?: ViewStyle;           // Additional container styles
+  backgroundColor?: string;     // Custom background color (defaults to transparent)
 }
 
-export function Card({ children, style, backgroundColor }: CardProps) {
-  const colorScheme = useColorScheme();
-  const defaultBackgroundColor = colorScheme === 'dark' ? '#1c1c1e' : '#fff';
-  const borderColor = colorScheme === 'dark' ? '#2c2c2e' : '#e5e5e5';
-
+// Card component definition with default prop values
+const Card: React.FC<CardProps> = ({ 
+  children,                    // Content to be rendered
+  style,                      // Custom styles
+  backgroundColor = 'transparent'  // Default background color
+}) => {
   return (
-    <View style={[styles.card, { backgroundColor: backgroundColor || defaultBackgroundColor, borderColor }, style]}>
-      {children}
+    // View component that combines base styles, background color, and custom styles
+    <View style={[
+      styles.card,            // Base card styles
+      { backgroundColor },    // Background color style
+      style                   // Custom styles
+    ]}>
+      {children}              {/* Render the card's content */}
     </View>
   );
-}
+};
 
+// Style definitions for the card component
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: BorderRadius.md,  // Rounded corners using theme constant
+    padding: 16,                   // Internal spacing
+    ...Shadows.md,                 // Shadow effect from theme constants
   },
-}); 
+});
+
+// Export the Card component
+export { Card };

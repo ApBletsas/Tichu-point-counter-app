@@ -1,3 +1,4 @@
+
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -38,7 +39,7 @@ export default function GameScreen() {
     setSubmitting(false);
   }, [rounds.length, submitting]);
 
-  // Handle team A points change
+  // Handle team A points change with automatic team B points adjustment
   const handleTeamAPointsChange = (value: number) => {
     setTeamAPoints(value);
     
@@ -60,7 +61,7 @@ export default function GameScreen() {
     }
   };
 
-  // Handle team B points change
+  // Handle team B points change with automatic team A points adjustment
   const handleTeamBPointsChange = (value: number) => {
     setTeamBPoints(value);
     
@@ -82,6 +83,7 @@ export default function GameScreen() {
     }
   };
 
+  // Handle special call selection/deselection
   const handleCall = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo') => {
     setCurrentCalls(prev => {
       // Check if this call already exists
@@ -101,6 +103,7 @@ export default function GameScreen() {
     });
   };
 
+  // Handle special call success/failure state
   const handleCallOutcome = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo', successful: boolean) => {
     // Skip for oneTwo type since it doesn't have success/failure state
     if (type === 'oneTwo') return;
@@ -115,16 +118,18 @@ export default function GameScreen() {
     });
   };
 
+  // Check if a call is currently selected
   const isCallSelected = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo'): boolean => {
     return currentCalls.some(call => call.teamId === teamId && call.type === type);
   };
 
+  // Get the success/failure state of a call
   const getCallOutcome = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo'): boolean | null => {
     const call = currentCalls.find(call => call.teamId === teamId && call.type === type);
     return call ? call.successful : null;
   };
 
-  // Helper function to check if a call should be disabled
+  // Check if a call should be disabled based on game rules
   const isCallDisabled = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo'): boolean => {
     const oppositeTeam = teamId === 'A' ? 'B' : 'A';
     
@@ -195,7 +200,7 @@ export default function GameScreen() {
     return false;
   };
 
-  // Helper function to check if a call should be failed-only
+  // Check if a call should only allow failure state
   const isFailedOnly = (teamId: 'A' | 'B', type: 'tichu' | 'grandTichu' | 'oneTwo'): boolean => {
     const oppositeTeam = teamId === 'A' ? 'B' : 'A';
     
@@ -217,7 +222,7 @@ export default function GameScreen() {
     return false;
   };
 
-  // Calculate adjusted points based on Tichu calls
+  // Calculate points adjusted for special calls
   const calculateAdjustedPoints = () => {
     let adjustedTeamAPoints = teamAPoints;
     let adjustedTeamBPoints = teamBPoints;
@@ -249,6 +254,7 @@ export default function GameScreen() {
     return { adjustedTeamAPoints, adjustedTeamBPoints };
   };
 
+  // Handle round submission with validation
   const handleSubmitRound = () => {
     // Validate that points are multiples of 5, between -25 and 125, and not empty
     if (teamAPoints === null || teamBPoints === null) {
@@ -307,12 +313,13 @@ export default function GameScreen() {
   const teamADifference = adjustedTeamAPoints - teamAPoints;
   const teamBDifference = adjustedTeamBPoints - teamBPoints;
 
-  // Quick point presets for common distributions
+  // Handle quick point preset selection
   const handleQuickPointPreset = (teamAValue: number, teamBValue: number) => {
     setTeamAPoints(teamAValue);
     setTeamBPoints(teamBValue);
   };
 
+  // Render the game screen UI
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={darkMode ? "light" : "dark"} />

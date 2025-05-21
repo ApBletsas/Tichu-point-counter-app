@@ -1,23 +1,42 @@
-import React from 'react';
+/**
+ * Stats Screen Component
+ * 
+ * This screen displays comprehensive game statistics for the Tichu game, including:
+ * - Total number of games played
+ * - Number of games won by each team
+ * - Success rates for Tichu and Grand Tichu calls
+ * All statistics are presented in a card-based layout with team-specific comparisons.
+ */
+
+// Import core React Native components for building the UI
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+// Import Card component for consistent card styling
 import { Card } from '../../components/Card';
-import { useColors, useDarkMode } from '../../constants/theme';
+// Import theme constants and hooks for styling
+import { FontSizes, Spacing, useColors, useDarkMode } from '../../constants/theme';
+// Import game store for accessing game state
 import { useGameStore } from '../../store/gameStore';
 
 export default function StatsScreen() {
-  const { rounds, teams, winningTeam } = useGameStore();
+  // Get game state from the store
+  const { rounds, teams, winningScore } = useGameStore();
+  // Get theme colors for consistent styling
   const colors = useColors();
+  // Get dark mode status for theme-aware styling
   const isDark = useDarkMode();
 
-  // Calculate statistics
-  const totalGames = rounds.length > 0 ? Math.ceil(rounds.length / 10) : 0; // Assuming 10 rounds per game
+  // Calculate total games played (10 rounds per game)
+  const totalGames = rounds.length > 0 ? Math.ceil(rounds.length / 10) : 0;
   
+  // Calculate statistics for Team A
   const teamAStats = {
+    // Count wins by checking when team reached winning score
     wins: rounds.reduce((wins, round) => {
       const teamATotal = rounds.slice(0, round.id).reduce((sum, r) => sum + r.teamAPoints, 0);
       const teamBTotal = rounds.slice(0, round.id).reduce((sum, r) => sum + r.teamBPoints, 0);
-      return teamATotal >= 1000 ? wins + 1 : wins;
+      return teamATotal >= winningScore ? wins + 1 : wins;
     }, 0),
+    // Calculate Tichu success rate as percentage
     tichuSuccessRate: (() => {
       const totalTichus = rounds.reduce((sum, round) => 
         sum + round.calls.filter(call => call.teamId === 'A' && call.type === 'tichu').length, 0);
@@ -25,6 +44,7 @@ export default function StatsScreen() {
         sum + round.calls.filter(call => call.teamId === 'A' && call.type === 'tichu' && call.successful).length, 0);
       return totalTichus > 0 ? (successfulTichus / totalTichus * 100).toFixed(1) : '0.0';
     })(),
+    // Calculate Grand Tichu success rate as percentage
     grandTichuSuccessRate: (() => {
       const totalGrandTichus = rounds.reduce((sum, round) => 
         sum + round.calls.filter(call => call.teamId === 'A' && call.type === 'grandTichu').length, 0);
@@ -34,12 +54,15 @@ export default function StatsScreen() {
     })(),
   };
 
+  // Calculate statistics for Team B (mirrors Team A calculations)
   const teamBStats = {
+    // Count wins by checking when team reached winning score
     wins: rounds.reduce((wins, round) => {
       const teamATotal = rounds.slice(0, round.id).reduce((sum, r) => sum + r.teamAPoints, 0);
       const teamBTotal = rounds.slice(0, round.id).reduce((sum, r) => sum + r.teamBPoints, 0);
-      return teamBTotal >= 1000 ? wins + 1 : wins;
+      return teamBTotal >= winningScore ? wins + 1 : wins;
     }, 0),
+    // Calculate Tichu success rate as percentage
     tichuSuccessRate: (() => {
       const totalTichus = rounds.reduce((sum, round) => 
         sum + round.calls.filter(call => call.teamId === 'B' && call.type === 'tichu').length, 0);
@@ -47,6 +70,7 @@ export default function StatsScreen() {
         sum + round.calls.filter(call => call.teamId === 'B' && call.type === 'tichu' && call.successful).length, 0);
       return totalTichus > 0 ? (successfulTichus / totalTichus * 100).toFixed(1) : '0.0';
     })(),
+    // Calculate Grand Tichu success rate as percentage
     grandTichuSuccessRate: (() => {
       const totalGrandTichus = rounds.reduce((sum, round) => 
         sum + round.calls.filter(call => call.teamId === 'B' && call.type === 'grandTichu').length, 0);
@@ -56,6 +80,7 @@ export default function StatsScreen() {
     })(),
   };
 
+  // Reusable component for displaying statistics in a card format
   const StatCard = ({ title, teamAValue, teamBValue }: { title: string; teamAValue: number | string; teamBValue: number | string }) => (
     <Card 
       style={styles.statCard} 
@@ -74,9 +99,12 @@ export default function StatsScreen() {
   );
 
   return (
+    // Main scrollable container with theme-aware background
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header with theme-aware color */}
       <Text style={[styles.header, { color: isDark ? colors.primary + 'CC' : colors.primary }]}>Game Statistics</Text>
       
+      {/* Statistics Cards Section */}
       <StatCard 
         title="Games Played" 
         teamAValue={totalGames} 
@@ -104,38 +132,46 @@ export default function StatsScreen() {
   );
 }
 
+// Styles for the stats screen
 const styles = StyleSheet.create({
+  // Main container that fills the screen with padding
   container: {
     flex: 1,
-    padding: 16,
+    padding: Spacing.md,
   },
+  // Header text style with center alignment
   header: {
-    fontSize: 24,
+    fontSize: FontSizes.xl,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: Spacing.md,
     textAlign: 'center',
   },
+  // Card container style with margin and padding
   statCard: {
-    marginBottom: 16,
-    padding: 16,
+    marginBottom: Spacing.md,
+    padding: Spacing.md,
   },
+  // Card title text style
   statTitle: {
-    fontSize: 18,
+    fontSize: FontSizes.lg,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
+  // Row layout for team name and value
   statRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
+  // Team name text style with flex for proper spacing
   teamName: {
-    fontSize: 16,
+    fontSize: FontSizes.md,
     flex: 1,
   },
+  // Stat value text style
   statValue: {
-    fontSize: 16,
+    fontSize: FontSizes.md,
     fontWeight: 'bold',
   },
 }); 

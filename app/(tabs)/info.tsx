@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useColors, useDarkMode, Spacing, FontSizes, BorderRadius, Shadows } from '../../constants/theme';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Collapsible } from '../../components/Collapsible';
+import { BorderRadius, FontSizes, Shadows, Spacing, useColors, useDarkMode } from '../../constants/theme';
 
 export default function TutorialScreen() {
   const colors = useColors();
